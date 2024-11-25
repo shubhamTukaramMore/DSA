@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Queue System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .job-list {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 16px;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 400px;
+        }
+        .job {
+            margin: 5px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            border-left: 5px solid;
+        }
+        .high-priority {
+            border-color: red;
+        }
+        .low-priority {
+            border-color: blue;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Job Queue System</h2>
+    <input type="text" id="jobName" placeholder="Enter job name" />
+    <select id="priority">
+        <option value="High">High Priority</option>
+        <option value="Low">Low Priority</option>
+    </select>
+    <button onclick="addJob()">Add Job</button>
+    <button onclick="processJob()">Process Job</button>
+
+    <div id="jobQueue" class="job-list"></div>
+</div>
+
+<script>
+// Priority Queue to manage jobs
+class PriorityQueue {
+    constructor() {
+        this.queue = [];
+    }
+
+    // Add job with priority
+    enqueue(job, priority) {
+        const newJob = { job, priority };
+        if (priority === 'High') {
+            // High priority jobs go to the front of the queue
+            this.queue.unshift(newJob);
+        } else {
+            // Low priority jobs go to the end of the queue
+            this.queue.push(newJob);
+        }
+    }
+
+    // Remove the job that is to be processed (the first in the queue)
+    dequeue() {
+        return this.queue.shift(); // Remove the first job in the queue
+    }
+
+    // Check if the queue is empty
+    isEmpty() {
+        return this.queue.length === 0;
+    }
+
+    // Display the current jobs in the queue
+    displayQueue() {
+        let jobDisplay = '';
+        for (let i = 0; i < this.queue.length; i++) {
+            const job = this.queue[i];
+            const jobClass = job.priority === 'High' ? 'high-priority' : 'low-priority';
+            jobDisplay += `<div class="job ${jobClass}">${job.priority}: ${job.job}</div>`;
+        }
+        document.getElementById('jobQueue').innerHTML = jobDisplay;
+    }
+}
+
+const jobQueue = new PriorityQueue();
+
+// Function to add a job to the queue
+function addJob() {
+    const jobName = document.getElementById('jobName').value;
+    const priority = document.getElementById('priority').value;
+
+    if (!jobName) {
+        alert('Please enter a job name!');
+        return;
+    }
+
+    jobQueue.enqueue(jobName, priority);
+    document.getElementById('jobName').value = ''; // Clear input field
+    jobQueue.displayQueue(); // Update the job queue display
+}
+
+// Function to process a job (dequeue operation)
+function processJob() {
+    if (jobQueue.isEmpty()) {
+        alert('No jobs in the queue to process!');
+        return;
+    }
+
+    const jobToProcess = jobQueue.dequeue();
+    alert(`Processing job: ${jobToProcess.job} (${jobToProcess.priority} Priority)`);
+    jobQueue.displayQueue(); // Update the job queue display
+}
+</script>
+
+</body>
+</html>

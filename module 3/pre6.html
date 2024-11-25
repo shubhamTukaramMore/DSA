@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank ATM Queue Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        .queue {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Bank ATM Queue Simulation</h2>
+
+    <div class="actions">
+        <select id="transactionType">
+            <option value="deposit">Deposit</option>
+            <option value="withdrawal">Withdrawal</option>
+            <option value="balanceCheck">Balance Check</option>
+        </select>
+        <input type="number" id="amount" placeholder="Amount" />
+        <button onclick="addToQueue()">Add to Queue</button>
+        <button onclick="processNextTransaction()">Process Next</button>
+    </div>
+
+    <div class="queue" id="queueDisplay">Queue: </div>
+</div>
+
+<script>
+// Deque implementation to manage the ATM queue
+class Deque {
+    constructor() {
+        this.items = [];
+    }
+
+    // Add to the front
+    addFront(item) {
+        this.items.unshift(item);
+    }
+
+    // Add to the back
+    addBack(item) {
+        this.items.push(item);
+    }
+
+    // Remove from the front
+    removeFront() {
+        return this.items.shift();
+    }
+
+    // Remove from the back
+    removeBack() {
+        return this.items.pop();
+    }
+
+    // Get the size of the deque
+    size() {
+        return this.items.length;
+    }
+
+    // Get the front item
+    peekFront() {
+        return this.items[0];
+    }
+
+    // Get the back item
+    peekBack() {
+        return this.items[this.items.length - 1];
+    }
+
+    // Check if deque is empty
+    isEmpty() {
+        return this.items.length === 0;
+    }
+
+    // Display the contents of the deque
+    display() {
+        return this.items.map(item => item.type + (item.amount ? `: $${item.amount}` : '')).join('\n');
+    }
+}
+
+// Create a new deque for managing the ATM queue
+const atmQueue = new Deque();
+
+// Function to add transactions to the queue
+function addToQueue() {
+    const transactionType = document.getElementById('transactionType').value;
+    const amount = document.getElementById('amount').value;
+
+    if (transactionType === "balanceCheck") {
+        // Balance check does not require an amount
+        const transaction = { type: transactionType };
+        atmQueue.addBack(transaction);
+    } else if (amount) {
+        // Deposit or withdrawal requires an amount
+        const transaction = { type: transactionType, amount: parseFloat(amount) };
+        atmQueue.addBack(transaction);
+    } else {
+        alert('Please enter a valid amount for deposit or withdrawal.');
+        return;
+    }
+
+    updateQueueDisplay();
+    document.getElementById('amount').value = ''; // Clear amount input
+}
+
+// Function to process the next transaction
+function processNextTransaction() {
+    if (atmQueue.isEmpty()) {
+        alert('No transactions in the queue.');
+        return;
+    }
+
+    const transaction = atmQueue.removeFront();
+    alert(`Processing transaction: ${transaction.type}${transaction.amount ? ' - $' + transaction.amount : ''}`);
+
+    updateQueueDisplay();
+}
+
+// Function to update the queue display on the page
+function updateQueueDisplay() {
+    const queueDisplay = document.getElementById('queueDisplay');
+    if (atmQueue.isEmpty()) {
+        queueDisplay.innerText = 'Queue: No transactions in the queue.';
+    } else {
+        queueDisplay.innerText = 'Queue:\n' + atmQueue.display();
+    }
+}
+
+</script>
+
+</body>
+</html>

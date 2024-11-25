@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Ticketing System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f2f2f2;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h2 {
+            color: #333;
+        }
+        #queueDisplay {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 16px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .customer {
+            margin: 5px;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #f4f4f4;
+        }
+        .vip {
+            background-color: #ffd700; /* Gold for VIP */
+        }
+        .regular {
+            background-color: #d3d3d3; /* Grey for regular */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Online Ticketing System</h2>
+    <input type="text" id="name" placeholder="Enter your name" />
+    <select id="priority">
+        <option value="VIP">VIP</option>
+        <option value="Regular">Regular</option>
+    </select>
+    <button onclick="bookTicket()">Book Ticket</button>
+    <button onclick="serveCustomer()">Serve Customer</button>
+    <button onclick="cancelTicket()">Cancel Ticket</button>
+    <div id="queueDisplay"></div>
+</div>
+
+<script>
+// Priority Queue to manage ticket booking
+class PriorityQueue {
+    constructor() {
+        this.queue = [];
+    }
+
+    // Add customer to the queue with priority
+    enqueue(name, priority) {
+        const customer = { name, priority };
+        if (priority === 'VIP') {
+            this.queue.unshift(customer); // VIPs are added to the front
+        } else {
+            this.queue.push(customer); // Regular customers are added to the end
+        }
+    }
+
+    // Remove and return the customer who is being served
+    dequeue() {
+        return this.queue.shift(); // Dequeue the first customer (highest priority)
+    }
+
+    // Cancel a ticket for a specific customer
+    cancelTicket(name) {
+        this.queue = this.queue.filter(customer => customer.name !== name);
+    }
+
+    // Display the queue (for visual representation)
+    displayQueue() {
+        let queueDisplay = '';
+        for (let customer of this.queue) {
+            queueDisplay += `<div class="customer ${customer.priority.toLowerCase()}">
+                                ${customer.priority} - ${customer.name}
+                             </div>`;
+        }
+        document.getElementById('queueDisplay').innerHTML = queueDisplay;
+    }
+
+    // Check if the queue is empty
+    isEmpty() {
+        return this.queue.length === 0;
+    }
+}
+
+const ticketQueue = new PriorityQueue();
+
+// Function to book a ticket
+function bookTicket() {
+    const name = document.getElementById('name').value;
+    const priority = document.getElementById('priority').value;
+
+    if (!name) {
+        alert('Please enter your name!');
+        return;
+    }
+
+    ticketQueue.enqueue(name, priority);
+    document.getElementById('name').value = ''; // Clear input field
+    ticketQueue.displayQueue(); // Update the displayed queue
+}
+
+// Function to serve the customer (dequeue operation)
+function serveCustomer() {
+    if (ticketQueue.isEmpty()) {
+        alert('No customers to serve!');
+        return;
+    }
+
+    const servedCustomer = ticketQueue.dequeue();
+    alert(`Serving customer: ${servedCustomer.name} (${servedCustomer.priority})`);
+    ticketQueue.displayQueue(); // Update the displayed queue
+}
+
+// Function to cancel a ticket for a specific customer
+function cancelTicket() {
+    const name = document.getElementById('name').value;
+    if (!name) {
+        alert('Please enter the name of the customer to cancel!');
+        return;
+    }
+
+    ticketQueue.cancelTicket(name);
+    document.getElementById('name').value = ''; // Clear input field
+    ticketQueue.displayQueue(); // Update the displayed queue
+}
+</script>
+
+</body>
+</html>

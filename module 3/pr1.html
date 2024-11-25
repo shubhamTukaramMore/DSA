@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Postfix Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .calculator {
+            display: inline-block;
+            text-align: center;
+        }
+        input {
+            width: 200px;
+            padding: 10px;
+            font-size: 18px;
+        }
+        button {
+            padding: 10px;
+            font-size: 18px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>Postfix Calculator</h2>
+    <input type="text" id="expression" placeholder="Enter expression" />
+    <br><br>
+    <button onclick="appendCharacter('1')">1</button>
+    <button onclick="appendCharacter('2')">2</button>
+    <button onclick="appendCharacter('3')">3</button>
+    <button onclick="appendCharacter('+')">+</button>
+    <br>
+    <button onclick="appendCharacter('4')">4</button>
+    <button onclick="appendCharacter('5')">5</button>
+    <button onclick="appendCharacter('6')">6</button>
+    <button onclick="appendCharacter('-')">-</button>
+    <br>
+    <button onclick="appendCharacter('7')">7</button>
+    <button onclick="appendCharacter('8')">8</button>
+    <button onclick="appendCharacter('9')">9</button>
+    <button onclick="appendCharacter('*')">*</button>
+    <br>
+    <button onclick="appendCharacter('0')">0</button>
+    <button onclick="appendCharacter('(')">(</button>
+    <button onclick="appendCharacter(')')">)</button>
+    <button onclick="appendCharacter('/')">/</button>
+    <br>
+    <button onclick="clearExpression()">Clear</button>
+    <button onclick="calculate()">Calculate</button>
+    <br><br>
+    <h3>Result: <span id="result"></span></h3>
+</div>
+
+<script>
+// Function to append characters to the input field
+function appendCharacter(character) {
+    document.getElementById('expression').value += character;
+}
+
+// Function to clear the input field
+function clearExpression() {
+    document.getElementById('expression').value = '';
+    document.getElementById('result').innerText = '';
+}
+
+// Function to convert infix expression to postfix
+function infixToPostfix(infix) {
+    let stack = [];  // Stack to hold operators
+    let postfix = '';  // Postfix expression result
+
+    // Precedence of operators
+    let precedence = {'+': 1, '-': 1, '*': 2, '/': 2};
+
+    // Loop through each character in the infix expression
+    for (let i = 0; i < infix.length; i++) {
+        let char = infix[i];
+
+        if (/\d/.test(char)) {  // If the character is a digit, add to postfix
+            postfix += char;
+        } else if (char === '(') {  // If it's a '(', push it to the stack
+            stack.push(char);
+        } else if (char === ')') {  // If it's a ')', pop from stack until '('
+            while (stack.length > 0 && stack[stack.length - 1] !== '(') {
+                postfix += stack.pop();
+            }
+            stack.pop();  // Remove '(' from stack
+        } else if ('+-*/'.includes(char)) {  // If it's an operator
+            // Pop higher precedence operators from stack
+            while (stack.length > 0 && precedence[char] <= precedence[stack[stack.length - 1]]) {
+                postfix += stack.pop();
+            }
+            stack.push(char);  // Push the current operator to the stack
+        }
+    }
+
+    // Pop any remaining operators from the stack
+    while (stack.length > 0) {
+        postfix += stack.pop();
+    }
+
+    return postfix;
+}
+
+// Function to evaluate the postfix expression
+function evaluatePostfix(postfix) {
+    let stack = [];  // Stack to evaluate the postfix expression
+
+    for (let i = 0; i < postfix.length; i++) {
+        let char = postfix[i];
+
+        if (/\d/.test(char)) {  // If it's a digit, push to stack
+            stack.push(Number(char));
+        } else if ('+-*/'.includes(char)) {  // If it's an operator, pop operands and apply the operator
+            let b = stack.pop();
+            let a = stack.pop();
+            switch (char) {
+                case '+':
+                    stack.push(a + b);
+                    break;
+                case '-':
+                    stack.push(a - b);
+                    break;
+                case '*':
+                    stack.push(a * b);
+                    break;
+                case '/':
+                    stack.push(a / b);
+                    break;
+            }
+        }
+    }
+
+    return stack.pop();  // Return the final result
+}
+
+// Function to calculate the result
+function calculate() {
+    let infix = document.getElementById('expression').value.replace(/\s+/g, '');  // Get input and remove spaces
+    if (!infix) {
+        alert('Please enter an expression!');
+        return;
+    }
+
+    let postfix = infixToPostfix(infix);  // Convert infix to postfix
+    let result = evaluatePostfix(postfix);  // Evaluate the postfix expression
+    document.getElementById('result').innerText = result;  // Show the result
+}
+</script>
+
+</body>
+</html>
